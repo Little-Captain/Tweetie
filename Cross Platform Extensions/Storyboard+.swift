@@ -23,26 +23,32 @@
 import Foundation
 
 #if os(iOS)
-  import UIKit
+import UIKit
 
-  extension UIStoryboard {
+extension UIStoryboard {
+    
     func instantiateViewController<T>(ofType type: T.Type) -> T {
-      return instantiateViewController(withIdentifier: String(describing: type)) as! T
+        return instantiateViewController(withIdentifier: String(describing: type)) as! T
     }
-  }
+    
+}
 #elseif os(OSX)
-  import Cocoa
+import Cocoa
 
-  extension NSStoryboard.Name: ExpressibleByStringLiteral {
+extension NSStoryboard.Name: ExpressibleByStringLiteral {
+    
     public init(stringLiteral value: String) {
-      self.init(value)
+        self.init(value)
     }
-  }
+    
+}
 
-  extension NSStoryboard {
+extension NSStoryboard {
+    
     func instantiateViewController<T>(ofType type: T.Type) -> T {
-      let scene = SceneIdentifier(String(describing: type))
-      return instantiateController(withIdentifier: scene) as! T
+        let scene = SceneIdentifier(String(describing: type))
+        return instantiateController(withIdentifier: scene) as! T
     }
-  }
+    
+}
 #endif

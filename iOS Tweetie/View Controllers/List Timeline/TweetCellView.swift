@@ -25,14 +25,15 @@ import UIKit
 import Kingfisher
 
 class TweetCellView: UITableViewCell {
-
-  @IBOutlet weak var photo: UIImageView!
-  @IBOutlet weak var name: UILabel!
-  @IBOutlet weak var message: UITextView!
-
-  func update(with tweet: Tweet) {
-    name.text = tweet.name
-    message.text = tweet.text
-    photo.kf.setImage(with: URL(string: tweet.imageUrl))
-  }
+    
+    @IBOutlet weak var photo: UIImageView!
+    @IBOutlet weak var name: UILabel!
+    @IBOutlet weak var message: UITextView!
+    
+    func update(with tweet: Tweet) {
+        name.text = tweet.name
+        message.text = tweet.text
+        photo.kf.setImage(with: URL(string: tweet.imageUrl))
+    }
+    
 }

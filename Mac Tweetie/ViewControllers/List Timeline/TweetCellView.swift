@@ -24,15 +24,15 @@ import Cocoa
 import Kingfisher
 
 class TweetCellView: NSTableCellView {
-
-  @IBOutlet var photo: NSImageView!
-  @IBOutlet var name: NSTextField!
-  @IBOutlet var message: NSTextField!
-
-  func update(with tweet: Tweet) {
-    name.stringValue = tweet.name
-    message.stringValue = tweet.text
-    photo.kf.setImage(with: URL(string: tweet.imageUrl))
-  }
+    
+    @IBOutlet var photo: NSImageView!
+    @IBOutlet var name: NSTextField!
+    @IBOutlet var message: NSTextField!
+    
+    func update(with tweet: Tweet) {
+        name.stringValue = tweet.name
+        message.stringValue = tweet.text
+        photo.kf.setImage(with: URL(string: tweet.imageUrl))
+    }
+    
 }
-

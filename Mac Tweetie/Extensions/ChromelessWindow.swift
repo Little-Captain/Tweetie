@@ -23,11 +23,13 @@
 import Cocoa
 
 class ChromelessWindow: NSWindow {
-  //hides window title bar
-  override func awakeFromNib() {
-    super.awakeFromNib()
-    backgroundColor = NSColor.white
-    styleMask.insert(.fullSizeContentView)
-    titlebarAppearsTransparent = true
-  }
+    
+    //hides window title bar
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        backgroundColor = NSColor.white
+        styleMask.insert(.fullSizeContentView)
+        titlebarAppearsTransparent = true
+    }
+    
 }

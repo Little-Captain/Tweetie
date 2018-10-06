@@ -25,14 +25,15 @@ import UIKit
 import Kingfisher
 
 class UserCellView: UITableViewCell {
-
-  @IBOutlet weak var photo: UIImageView!
-  @IBOutlet weak var name: UILabel!
-  @IBOutlet weak var message: UITextView!
-
-  func update(with user: User) {
-    name.text = user.name
-    message.text = user.about
-    photo.kf.setImage(with: URL(string: user.imageUrl))
-  }
+    
+    @IBOutlet weak var photo: UIImageView!
+    @IBOutlet weak var name: UILabel!
+    @IBOutlet weak var message: UITextView!
+    
+    func update(with user: User) {
+        name.text = user.name
+        message.text = user.about
+        photo.kf.setImage(with: URL(string: user.imageUrl))
+    }
+    
 }

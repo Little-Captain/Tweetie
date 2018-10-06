@@ -23,22 +23,26 @@
 import Foundation
 
 #if os(iOS)
-  import UIKit
+import UIKit
 
-  extension UITableView {
+extension UITableView {
+    
     func dequeueCell<T>(ofType type: T.Type) -> T {
-      return dequeueReusableCell(withIdentifier: String(describing: T.self)) as! T
+        return dequeueReusableCell(withIdentifier: String(describing: T.self)) as! T
     }
-  }
+    
+}
 
 #elseif os(OSX)
-  import Cocoa
+import Cocoa
 
-  extension NSTableView {
+extension NSTableView {
+    
     func dequeueCell<T>(ofType type: T.Type) -> T {
-      let id = NSUserInterfaceItemIdentifier(String(describing: T.self))
-      return makeView(withIdentifier: id, owner: self) as! T
+        let id = NSUserInterfaceItemIdentifier(String(describing: T.self))
+        return makeView(withIdentifier: id, owner: self) as! T
     }
-  }
+    
+}
 
 #endif

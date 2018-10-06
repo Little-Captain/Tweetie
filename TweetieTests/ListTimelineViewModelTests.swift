@@ -18,36 +18,37 @@ import RxRealm
 @testable import Tweetie
 
 class ListTimelineViewModelTests: XCTestCase {
-
-  private func createViewModel(_ account: Driver<TwitterAccount.AccountStatus>) -> ListTimelineViewModel {
-    return ListTimelineViewModel(
-      account: account,
-      list: TestData.listId,
-      apiType: TwitterTestAPI.self)
-  }
-
-  func test_whenInitialized_storesInitParams() {
-    let accountSubject = PublishSubject<TwitterAccount.AccountStatus>()
-    let viewModel = createViewModel(accountSubject.asDriver(onErrorJustReturn: .unavailable))
-
-    XCTAssertNotNil(viewModel.account)
-    XCTAssertEqual(viewModel.list.username+viewModel.list.slug, TestData.listId.username+TestData.listId.slug)
-    XCTAssertFalse(viewModel.paused)
-  }
-
-  func test_whenInitialized_bindsTweets() {
-    Realm.useCleanMemoryRealmByDefault(identifier: #function)
-
-    let realm = try! Realm()
-    try! realm.write {
-      realm.add(TestData.tweets)
+    
+    private func createViewModel(_ account: Driver<TwitterAccount.AccountStatus>) -> ListTimelineViewModel {
+        return ListTimelineViewModel(
+            account: account,
+            list: TestData.listId,
+            apiType: TwitterTestAPI.self)
     }
-
-    let accountSubject = PublishSubject<TwitterAccount.AccountStatus>()
-    let viewModel = createViewModel(accountSubject.asDriver(onErrorJustReturn: .unavailable))
-    let result = viewModel.tweets
-
-    let emitted = try! result!.toBlocking(timeout: 1).first()!
-    XCTAssertTrue(emitted.0.count == 3)
-  }
+    
+    func test_whenInitialized_storesInitParams() {
+        let accountSubject = PublishSubject<TwitterAccount.AccountStatus>()
+        let viewModel = createViewModel(accountSubject.asDriver(onErrorJustReturn: .unavailable))
+        
+        XCTAssertNotNil(viewModel.account)
+        XCTAssertEqual(viewModel.list.username+viewModel.list.slug, TestData.listId.username+TestData.listId.slug)
+        XCTAssertFalse(viewModel.paused)
+    }
+    
+    func test_whenInitialized_bindsTweets() {
+        Realm.useCleanMemoryRealmByDefault(identifier: #function)
+        
+        let realm = try! Realm()
+        try! realm.write {
+            realm.add(TestData.tweets)
+        }
+        
+        let accountSubject = PublishSubject<TwitterAccount.AccountStatus>()
+        let viewModel = createViewModel(accountSubject.asDriver(onErrorJustReturn: .unavailable))
+        let result = viewModel.tweets
+        
+        let emitted = try! result!.toBlocking(timeout: 1).first()!
+        XCTAssertTrue(emitted.0.count == 3)
+    }
+    
 }

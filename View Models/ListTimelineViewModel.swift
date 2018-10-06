@@ -28,29 +28,31 @@ import RxRealm
 import RxCocoa
 
 class ListTimelineViewModel {
-  private let bag = DisposeBag()
-  private let fetcher: TimelineFetcher
-
-  // MARK: - Input
-
-  // MARK: - Output
-
-  // MARK: - Init
-  init(account: Driver<TwitterAccount.AccountStatus>,
-       list: ListIdentifier,
-       apiType: TwitterAPIProtocol.Type = TwitterAPI.self) {
-
-    // fetch and store tweets
-    fetcher = TimelineFetcher(account: account, list: list, apiType: apiType)
-    bindOutput()
-
-  }
-
-  // MARK: - Methods
-  private func bindOutput() {
-    //bind tweets
-
-    //bind if an account is available
-
-  }
+    
+    private let bag = DisposeBag()
+    private let fetcher: TimelineFetcher
+    
+    // MARK: - Input
+    
+    // MARK: - Output
+    
+    // MARK: - Init
+    init(account: Driver<TwitterAccount.AccountStatus>,
+         list: ListIdentifier,
+         apiType: TwitterAPIProtocol.Type = TwitterAPI.self) {
+        
+        // fetch and store tweets
+        fetcher = TimelineFetcher(account: account, list: list, apiType: apiType)
+        bindOutput()
+        
+    }
+    
+    // MARK: - Methods
+    private func bindOutput() {
+        //bind tweets
+        
+        //bind if an account is available
+        
+    }
+    
 }
