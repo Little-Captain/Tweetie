@@ -51,4 +51,12 @@ class ListTimelineViewModelTests: XCTestCase {
         XCTAssertTrue(emitted.0.count == 3)
     }
     
+    func test_whenAccountAvailable_updatesAccountStatus() {
+        let accountSubject = PublishSubject<TwitterAccount.AccountStatus>()
+        let viewModel = createViewModel(accountSubject.asDriver(onErrorJustReturn: .unavailable))
+        
+        let loggedIn = viewModel.loggedIn.asObservable()
+        
+    }
+    
 }
