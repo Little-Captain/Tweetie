@@ -31,75 +31,90 @@ import Reachability
 import Unbox
 
 class TimelineFetcher {
-
-  private let timerDelay: TimeInterval = 30
-  private let bag = DisposeBag()
-  private let feedCursor = Variable<TimelineCursor>(.none)
-
-  // MARK: input
-  let paused = Variable<Bool>(false)
-
-  // MARK: output
-  let timeline: Observable<[Tweet]>
-  // MARK: Init with list or user
-
-  //provide list id to fetch list's tweets
-  convenience init(account: Driver<TwitterAccount.AccountStatus>, list: ListIdentifier, apiType: TwitterAPIProtocol.Type) {
-    self.init(account: account, jsonProvider: apiType.timeline(of: list))
-  }
-
-  //provide username to fetch user's tweets
-  convenience init(account: Driver<TwitterAccount.AccountStatus>, username: String, apiType: TwitterAPIProtocol.Type) {
-    self.init(account: account, jsonProvider: apiType.timeline(of: username))
-  }
-
-  private init(account: Driver<TwitterAccount.AccountStatus>, jsonProvider: @escaping (AccessToken, TimelineCursor) -> Observable<[JSONObject]>) {
-    //
-    // subscribe for the current twitter account
-    //
-    let currentAccount: Observable<AccessToken> = account
-      .filter { account in
-        switch account {
-        case .authorized: return true
-        default: return false
-        }
-      }
-      .map { account -> AccessToken in
-        switch account {
-        case .authorized(let acaccount):
-          return acaccount
-        default: fatalError()
-        }
-      }
-      .asObservable()
-
-    // timer that emits a reachable logged account
-    let reachableTimerWithAccount = Observable.combineLatest(
-      Observable<Int>.timer(0, period: timerDelay, scheduler: MainScheduler.instance),
-      Reachability.rx.reachable,
-      currentAccount,
-      paused.asObservable(),
-      resultSelector: { _, reachable, account, paused in
-        return (reachable && !paused) ? account : nil
-      })
-      .filter { $0 != nil }
-      .map { $0! }
-
-    let feedCursor = Variable<TimelineCursor>(.none)
-
-    // Re-fetch the timeline
-
-    timeline = Observable<[Tweet]>.empty()
-
-    // Store the latest position through timeline
-
-  }
-
-  static func currentCursor(lastCursor: TimelineCursor, tweets: [Tweet]) -> TimelineCursor {
-    return tweets.reduce(lastCursor) { status, tweet in
-      let max: Int64 = tweet.id < status.maxId ? tweet.id-1 : status.maxId
-      let since: Int64 = tweet.id > status.sinceId ? tweet.id : status.sinceId
-      return TimelineCursor(max: max, since: since)
+    
+    private let timerDelay: TimeInterval = 30
+    private let bag = DisposeBag()
+    private let feedCursor = Variable<TimelineCursor>(.none)
+    
+    // MARK: input
+    let paused = Variable<Bool>(false)
+    
+    // MARK: output
+    let timeline: Observable<[Tweet]>
+    // MARK: Init with list or user
+    
+    //provide list id to fetch list's tweets
+    convenience init(account: Driver<TwitterAccount.AccountStatus>, list: ListIdentifier, apiType: TwitterAPIProtocol.Type) {
+        self.init(account: account, jsonProvider: apiType.timeline(of: list))
     }
-  }
+    
+    //provide username to fetch user's tweets
+    convenience init(account: Driver<TwitterAccount.AccountStatus>, username: String, apiType: TwitterAPIProtocol.Type) {
+        self.init(account: account, jsonProvider: apiType.timeline(of: username))
+    }
+    
+    private init(account: Driver<TwitterAccount.AccountStatus>, jsonProvider: @escaping (AccessToken, TimelineCursor) -> Observable<[JSONObject]>) {
+        //
+        // subscribe for the current twitter account
+        //
+        let currentAccount: Observable<AccessToken> = account
+            .filter { account in
+                switch account {
+                case .authorized: return true
+                default: return false
+                }
+            }
+            .map { account -> AccessToken in
+                switch account {
+                case .authorized(let acaccount):
+                    return acaccount
+                default: fatalError()
+                }
+            }
+            .asObservable()
+        
+        // timer that emits a reachable logged account
+        let reachableTimerWithAccount = Observable.combineLatest(
+            Observable<Int>.timer(0, period: timerDelay, scheduler: MainScheduler.instance),
+            Reachability.rx.reachable,
+            currentAccount,
+            paused.asObservable(),
+            resultSelector: { _, reachable, account, paused in
+                return (reachable && !paused) ? account : nil
+        })
+            .filter { $0 != nil }
+            .map { $0! }
+        
+        // starter
+        // error ???
+//        let feedCursor = Variable<TimelineCursor>(.none)
+        
+        // Re-fetch the timeline
+        
+        // starter
+//        timeline = Observable<[Tweet]>.empty()
+        
+        // add
+        timeline = reachableTimerWithAccount
+            .withLatestFrom(feedCursor.asObservable()) { (account: $0, cursor: $1) }
+            .flatMapLatest(jsonProvider)
+            .map(Tweet.unboxMany)
+            .share(replay: 1, scope: .whileConnected)
+        
+        // Store the latest position through timeline
+        // add
+        timeline
+            .scan(.none, accumulator: TimelineFetcher.currentCursor)
+            .bind(to: feedCursor)
+            .disposed(by: bag)
+    }
+    
+    static func currentCursor(lastCursor: TimelineCursor, tweets: [Tweet]) -> TimelineCursor {
+        return tweets.reduce(lastCursor) { status, tweet in
+            let max: Int64 = tweet.id < status.maxId ? tweet.id-1 : status.maxId
+            let since: Int64 = tweet.id > status.sinceId ? tweet.id : status.sinceId
+            return TimelineCursor(max: max, since: since)
+        }
+    }
+    
 }
