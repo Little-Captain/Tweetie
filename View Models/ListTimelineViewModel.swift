@@ -32,27 +32,52 @@ class ListTimelineViewModel {
     private let bag = DisposeBag()
     private let fetcher: TimelineFetcher
     
+    let list: ListIdentifier
+    let account: Driver<TwitterAccount.AccountStatus>
+    
     // MARK: - Input
+    //  proxy property: 代理属性
+    var paused: Bool = false {
+        didSet {
+            fetcher.paused.value = paused
+        }
+    }
     
     // MARK: - Output
+    private(set) var tweets: Observable<(AnyRealmCollection<Tweet>, RealmChangeset?)>!
+    private(set) var loggedIn: Driver<Bool>!
     
     // MARK: - Init
     init(account: Driver<TwitterAccount.AccountStatus>,
          list: ListIdentifier,
          apiType: TwitterAPIProtocol.Type = TwitterAPI.self) {
-        
+        self.account = account
+        self.list = list
         // fetch and store tweets
         fetcher = TimelineFetcher(account: account, list: list, apiType: apiType)
+        fetcher
+            .timeline
+            .subscribe(Realm.rx.add(update: true))
+            .disposed(by: bag)
         bindOutput()
-        
     }
     
     // MARK: - Methods
     private func bindOutput() {
         //bind tweets
-        
+        guard let realm = try? Realm() else {
+            return
+        }
+        tweets = Observable.changeset(from: realm.objects(Tweet.self))
         //bind if an account is available
-        
+        loggedIn = account
+            .map {
+                switch $0 {
+                case .unavailable: return false
+                case .authorized: return true
+                }
+            }
+            .asDriver(onErrorJustReturn: false)
     }
     
 }
