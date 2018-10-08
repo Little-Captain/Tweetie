@@ -34,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let testing = NSClassFromString("XCTest") != nil
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        TwitterAccount.set(key: "placeholder",
+        TwitterAccount.set(key: "placeholder1",
                            secret: "placeholder")
         
         if !testing {
