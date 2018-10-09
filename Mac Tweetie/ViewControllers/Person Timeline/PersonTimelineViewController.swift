@@ -51,9 +51,21 @@ class PersonTimelineViewController: NSViewController {
     
     func bindUI() {
         //bind the window title
+        let titleWhenLoaded = "@\(viewModel.username)"
+        viewModel
+            .tweets
+            .map { $0.count == 0 ? "None found" : titleWhenLoaded }
+            .drive(onNext: { NSApp.windows.first?.title = $0 })
+            .disposed(by: bag)
         
         //bind tweets
-        
+        viewModel
+            .tweets
+            .drive(onNext: { [weak self] in
+                self?.tweets = $0
+                self?.tableView.reloadData()
+            })
+            .disposed(by: bag)
     }
     
 }

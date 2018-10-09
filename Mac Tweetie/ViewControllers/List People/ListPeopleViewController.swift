@@ -51,12 +51,19 @@ class ListPeopleViewController: NSViewController {
     
     func bindUI() {
         //show tweets in table view
-        viewModel.people.asDriver()
+        viewModel
+            .people
+            .asDriver()
             .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
             .disposed(by: bag)
         
         //show message when no account available
-        
+        viewModel
+            .people
+            .asDriver()
+            .map { $0 == nil ? false : true }
+            .drive(messageView.rx.isHidden)
+            .disposed(by: bag)
     }
     
     @IBAction func tableViewDidSelectRow(sender: NSTableView) {
